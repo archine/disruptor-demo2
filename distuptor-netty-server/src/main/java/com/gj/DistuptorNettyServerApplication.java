@@ -8,6 +8,7 @@ public class DistuptorNettyServerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DistuptorNettyServerApplication.class, args);
+        new NettyServer();
     }
 
 }
