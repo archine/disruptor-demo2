@@ -6,11 +6,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,12 +31,10 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            socketChannel.pipeline().addLast(MarshallingCodeCFactory.buildMarshallingDecoder());
+                            socketChannel.pipeline().addLast(MarshallingCodeCFactory.buildMarshallingEncoder());
                             socketChannel.pipeline().addLast(new ServerHandler());
-                            socketChannel.pipeline().addLast(new HttpServerCodec());
-                            //进行大数据流的写入
-                            socketChannel.pipeline().addLast(new ChunkedWriteHandler());
-                            //对httpMessage进行聚合,聚合成FullHttpRequest或FullHttpResponse,几乎在netty编程中,都会用到这个
-                            socketChannel.pipeline().addLast(new HttpObjectAggregator(1024 * 64));
+
                         }
                     });
             //绑定端口,同步等待
